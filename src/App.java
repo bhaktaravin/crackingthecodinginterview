@@ -1,108 +1,105 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.stage.Stage;
 
-public class App extends JFrame {
+public class App extends Application {
     
-    private JTextArea outputArea;
-    private JTextField inputField;
-    private JComboBox<String> problemSelector;
-    private JRadioButton asciiRadio;
-    private JRadioButton unicodeRadio;
+    private TextArea outputArea;
+    private TextField inputField;
+    private ComboBox<String> problemSelector;
+    private RadioButton asciiRadio;
+    private RadioButton unicodeRadio;
     
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            App app = new App();
-            app.setVisible(true);
-        });
+        launch(args);
     }
     
-    public App() {
-        setTitle("Cracking the Coding Interview - Problems");
-        setSize(650, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Cracking the Coding Interview - Problems");
         
-        // Create main panel with padding
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        // Create main container
+        VBox mainPanel = new VBox(15);
+        mainPanel.setPadding(new Insets(20));
+        mainPanel.setAlignment(Pos.TOP_CENTER);
         
         // Title label
-        JLabel titleLabel = new JLabel("Select a Problem to Run:");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Label titleLabel = new Label("Select a Problem to Run:");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         
         // Problem selector
-        problemSelector = new JComboBox<>(new String[]{
+        problemSelector = new ComboBox<>();
+        problemSelector.getItems().addAll(
             "1.1 - Is Unique (Check unique characters)",
             "1.2 - Check Permutation",
             "1.3 - URLify (Replace spaces with %20)",
-            "1.4 - Palindrome Permutation"
-        });
-        problemSelector.setMaximumSize(new Dimension(450, 30));
-        problemSelector.setAlignmentX(Component.CENTER_ALIGNMENT);
+            "1.4 - Palindrome Permutation",
+            "1.5 - One Away",
+            "1.6 - String Compression",
+            "1.7 - Rotate Matrix",
+            "1.8 - Zero Matrix",
+            "1.9 - String Rotation"
+        );
+        problemSelector.setValue("1.1 - Is Unique (Check unique characters)");
+        problemSelector.setPrefWidth(450);
         
         // Character encoding selector (for Problem 1.2)
-        JPanel encodingPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        JLabel encodingLabel = new JLabel("Character Set:");
-        asciiRadio = new JRadioButton("ASCII (optimized)", true);
-        unicodeRadio = new JRadioButton("Unicode (HashMap)");
-        ButtonGroup encodingGroup = new ButtonGroup();
-        encodingGroup.add(asciiRadio);
-        encodingGroup.add(unicodeRadio);
-        encodingPanel.add(encodingLabel);
-        encodingPanel.add(asciiRadio);
-        encodingPanel.add(unicodeRadio);
-        encodingPanel.setMaximumSize(new Dimension(600, 40));
+        HBox encodingPanel = new HBox(15);
+        encodingPanel.setAlignment(Pos.CENTER);
+        Label encodingLabel = new Label("Character Set:");
+        asciiRadio = new RadioButton("ASCII (optimized)");
+        unicodeRadio = new RadioButton("Unicode (HashMap)");
+        asciiRadio.setSelected(true);
+        ToggleGroup encodingGroup = new ToggleGroup();
+        asciiRadio.setToggleGroup(encodingGroup);
+        unicodeRadio.setToggleGroup(encodingGroup);
+        encodingPanel.getChildren().addAll(encodingLabel, asciiRadio, unicodeRadio);
         
         // Input panel
-        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        JLabel inputLabel = new JLabel("Input:");
-        inputField = new JTextField(30);
-        inputPanel.add(inputLabel);
-        inputPanel.add(inputField);
-        inputPanel.setMaximumSize(new Dimension(600, 40));
+        HBox inputPanel = new HBox(10);
+        inputPanel.setAlignment(Pos.CENTER);
+        Label inputLabel = new Label("Input:");
+        inputField = new TextField();
+        inputField.setPrefWidth(400);
+        inputPanel.getChildren().addAll(inputLabel, inputField);
         
         // Run button
-        JButton runButton = new JButton("Run Problem");
-        runButton.setFont(new Font("Arial", Font.PLAIN, 14));
-        runButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        runButton.addActionListener(this::runSelectedProblem);
+        Button runButton = new Button("Run Problem");
+        runButton.setStyle("-fx-font-size: 14px;");
+        runButton.setOnAction(e -> runSelectedProblem());
         
         // Output label
-        JLabel outputLabel = new JLabel("Output:");
-        outputLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Label outputLabel = new Label("Output:");
         
         // Output area
-        outputArea = new JTextArea(15, 50);
+        outputArea = new TextArea();
         outputArea.setEditable(false);
-        outputArea.setFont(new Font("Courier New", Font.PLAIN, 12));
-        outputArea.setLineWrap(true);
-        outputArea.setWrapStyleWord(true);
-        JScrollPane scrollPane = new JScrollPane(outputArea);
-        scrollPane.setAlignmentX(Component.CENTER_ALIGNMENT);
+        outputArea.setStyle("-fx-font-family: 'Courier New'; -fx-font-size: 12px;");
+        outputArea.setWrapText(true);
+        outputArea.setPrefHeight(400);
         
-        // Add components with spacing
-        mainPanel.add(titleLabel);
-        mainPanel.add(Box.createVerticalStrut(15));
-        mainPanel.add(problemSelector);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(encodingPanel);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(inputPanel);
-        mainPanel.add(Box.createVerticalStrut(15));
-        mainPanel.add(runButton);
-        mainPanel.add(Box.createVerticalStrut(15));
-        mainPanel.add(outputLabel);
-        mainPanel.add(Box.createVerticalStrut(5));
-        mainPanel.add(scrollPane);
+        // Add components
+        mainPanel.getChildren().addAll(
+            titleLabel,
+            problemSelector,
+            encodingPanel,
+            inputPanel,
+            runButton,
+            outputLabel,
+            outputArea
+        );
         
-        add(mainPanel);
+        Scene scene = new Scene(mainPanel, 650, 650);
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
     
-    private void runSelectedProblem(ActionEvent e) {
-        String selected = (String) problemSelector.getSelectedItem();
+    private void runSelectedProblem() {
+        String selected = problemSelector.getValue();
         if (selected == null) {
             outputArea.setText("Please select a problem first!");
             return;
@@ -116,23 +113,36 @@ public class App extends JFrame {
             runURLify();
         } else if (selected.startsWith("1.4")) {
             runPalindromePermutation();
+        } else if (selected.startsWith("1.5")) {
+            runOneAway();
+        } else if (selected.startsWith("1.6")) {
+            runStringCompression();
+        } else if (selected.startsWith("1.7")) {
+            runRotateMatrix();
+        } else if (selected.startsWith("1.8")) {
+            runZeroMatrix();
+        } else if (selected.startsWith("1.9")) {
+            runStringRotation();
         }
     }
     
     private void runIsUnique() {
         String input = inputField.getText();
         if (input.isEmpty()) {
-            input = "abcdefg hello world test";
+            input = "abc aaa";
         }
         
         StringBuilder output = new StringBuilder();
-        output.append("=== Problem 1.1: Is Unique ===\n\n");
+        output.append("=== Problem 1.1: Is Unique (Optimized with Bit Vector) ===\n\n");
         
         String[] testStrings = input.split("\\s+");
         
         for (String str : testStrings) {
-            boolean result = hasUniqueCharacters(str);
-            output.append(String.format("\"%s\" has unique characters: %s\n", str, result));
+            output.append(String.format("Testing: \"%s\"\n", str));
+            StringBuilder detailedOutput = new StringBuilder();
+            boolean result = hasUniqueCharactersOptimized(str, detailedOutput);
+            output.append(detailedOutput.toString());
+            output.append(String.format("Result: %s\n\n", result));
         }
         
         outputArea.setText(output.toString());
@@ -192,15 +202,33 @@ public class App extends JFrame {
         outputArea.setText(output.toString());
     }
     
-    // Problem 1.1: Is Unique implementation
-    private boolean hasUniqueCharacters(String str) {
-        java.util.Set<Character> seen = new java.util.HashSet<>();
+    // Problem 1.1: Is Unique implementation (Optimized with Bit Vector)
+    // O(n) time, O(1) space - uses single integer as bit vector
+    private boolean hasUniqueCharactersOptimized(String str, StringBuilder output) {
+        int checker = 0; // Bit vector to track seen characters
         
-        for (char c : str.toCharArray()) {
-            if (seen.contains(c)) {
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            int val = c - 'a'; // Get position (0-25 for lowercase a-z)
+            
+            // Check if character is outside lowercase a-z range
+            if (val < 0 || val > 25) {
+                output.append(String.format("  '%c' is not a lowercase letter, skipping\n", c));
+                continue;
+            }
+            
+            output.append(String.format("  Checking '%c' (bit position %d)\n", c, val));
+            output.append(String.format("    Checker: %s\n", Integer.toBinaryString(checker)));
+            
+            // Check if bit at position 'val' is already set
+            if ((checker & (1 << val)) > 0) {
+                output.append(String.format("    Bit %d is already set! Duplicate found.\n", val));
                 return false;
             }
-            seen.add(c);
+            
+            // Set the bit at position 'val'
+            checker |= (1 << val);
+            output.append(String.format("    Bit %d set. New checker: %s\n", val, Integer.toBinaryString(checker)));
         }
         
         return true;
@@ -215,45 +243,326 @@ public class App extends JFrame {
     private void runPalindromePermutation() {
         String input = inputField.getText();
         if (input.isEmpty()) {
-            input = "Tact Coa";
+            input = "taco cat | hello";
         }
         
         StringBuilder output = new StringBuilder();
-        output.append("=== Problem 1.4: Palindrome Permutation ===\n\n");
+        output.append("=== Problem 1.4: Palindrome Permutation (Optimized with Bit Vector) ===\n");
+        output.append("(Separate multiple strings with | )\n\n");
         
-        // Test the entire input as one string (spaces will be ignored in the algorithm)
-        boolean result = isPalindromePermutation(input);
-        output.append(String.format("\"%s\" is a palindrome permutation: %s\n", input, result));
-        output.append("\nNote: Spaces and non-letters are ignored in the check.\n");
-        output.append("Example palindromes: \"taco cat\", \"atco cta\"\n");
+        // Split by pipe to test multiple strings
+        String[] testStrings = input.split("\\|");
+        
+        for (String str : testStrings) {
+            str = str.trim();
+            if (!str.isEmpty()) {
+                output.append(String.format("Testing: \"%s\"\n", str));
+                StringBuilder detailedOutput = new StringBuilder();
+                boolean result = isPalindromePermutationOptimized(str, detailedOutput);
+                output.append(detailedOutput.toString());
+                output.append(String.format("Result: %s\n\n", result));
+            }
+        }
+        
+        output.append("Note: Spaces and non-letters are ignored.\n");
         
         outputArea.setText(output.toString());
     }
     
-    // Problem 1.4: Palindrome Permutation implementation
-    // Check if a string is a permutation of a palindrome
-    private boolean isPalindromePermutation(String str) {
+    // Problem 1.4: Palindrome Permutation implementation (Optimized with Bit Vector)
+    // O(n) time, O(1) space - uses single integer to track odd/even counts
+    private boolean isPalindromePermutationOptimized(String str, StringBuilder output) {
         // Convert to lowercase and remove non-letter characters
         String cleanStr = str.toLowerCase().replaceAll("[^a-z]", "");
+        output.append(String.format("  Cleaned string: \"%s\"\n", cleanStr));
         
-        // Count character frequencies
-        java.util.HashMap<Character, Integer> charCount = new java.util.HashMap<>();
+        int bitVector = 0; // Each bit represents odd(1) or even(0) count
+        
         for (char c : cleanStr.toCharArray()) {
-            charCount.put(c, charCount.getOrDefault(c, 0) + 1);
+            int val = c - 'a'; // Position 0-25
+            output.append(String.format("  Processing '%c' (bit %d)\n", c, val));
+            output.append(String.format("    Before: %s\n", Integer.toBinaryString(bitVector)));
+            
+            // Toggle the bit at position 'val'
+            // If bit is 0 (even count), set to 1 (odd)
+            // If bit is 1 (odd count), set to 0 (even)
+            bitVector ^= (1 << val);
+            output.append(String.format("    After:  %s\n", Integer.toBinaryString(bitVector)));
         }
         
-        // For a palindrome permutation, at most one character can have odd count
-        int oddCount = 0;
-        for (int count : charCount.values()) {
-            if (count % 2 == 1) {
-                oddCount++;
-            }
-            if (oddCount > 1) {
-                return false;
-            }
+        output.append(String.format("  Final bit vector: %s\n", Integer.toBinaryString(bitVector)));
+        
+        // For palindrome permutation, at most 1 character can have odd count
+        // This means bitVector should have at most 1 bit set
+        // Check if bitVector is 0 or a power of 2
+        boolean result = (bitVector == 0) || ((bitVector & (bitVector - 1)) == 0);
+        
+        if (bitVector == 0) {
+            output.append("  All characters have even counts (can form even-length palindrome)\n");
+        } else if ((bitVector & (bitVector - 1)) == 0) {
+            output.append("  Exactly one character has odd count (can form odd-length palindrome)\n");
+        } else {
+            output.append("  More than one character has odd count (cannot form palindrome)\n");
         }
         
-        return true;
+        return result;
     }
+    
+    private void runOneAway() {
+        String input = inputField.getText();
+        if (input.isEmpty()) {
+            input = "pale ple | pales pale | pale bale | pale bake";
+        }
+        
+        StringBuilder output = new StringBuilder();
+        output.append("=== Problem 1.5: One Away ===\n");
+        output.append("(Separate pairs with | )\n\n");
+        
+        // Split by pipe to test multiple string pairs
+        String[] testPairs = input.split("\\|");
+        
+        for (String pair : testPairs) {
+            pair = pair.trim();
+            String[] strings = pair.split("\\s+");
+            
+            if (strings.length >= 2) {
+                String str1 = strings[0];
+                String str2 = strings[1];
+                oneAway oa = new oneAway();
+                boolean result = oa.isOneAway(str1, str2);
+                output.append(String.format("\"%s\" and \"%s\" → %s\n", str1, str2, result));
+            }
+        }
+        
+        output.append("\nEdits: insert, remove, or replace a character\n");
+        
+        outputArea.setText(output.toString());
+    }
+    
+    private void runStringCompression() {
+        String input = inputField.getText();
+        if (input.isEmpty()) {
+            input = "aabcccccaaa";
+        }
+        
+        StringBuilder output = new StringBuilder();
+        output.append("=== Problem 1.6: String Compression ===\n\n");
+        
+        String result = compressString(input);
+        output.append(String.format("Original: \"%s\" (length: %d)\n", input, input.length()));
+        output.append(String.format("Compressed: \"%s\" (length: %d)\n", result, result.length()));
+        
+        outputArea.setText(output.toString());
+    }
+    
+    // Problem 1.6: String Compression
+    private String compressString(String str) {
+        StringBuilder compressed = new StringBuilder();
+        int countConsecutive = 0;
+        
+        for (int i = 0; i < str.length(); i++) {
+            countConsecutive++;
+            
+            // If next character is different or we're at the end
+            if (i + 1 >= str.length() || str.charAt(i) != str.charAt(i + 1)) {
+                compressed.append(str.charAt(i));
+                compressed.append(countConsecutive);
+                countConsecutive = 0;
+            }
+        }
+        
+        // Return original if compressed is not smaller
+        return compressed.length() < str.length() ? compressed.toString() : str;
+    }
+    
+    private void runRotateMatrix() {
+        String input = inputField.getText();
+        if (input.isEmpty()) {
+            input = "3";
+        }
+        
+        StringBuilder output = new StringBuilder();
+        output.append("=== Problem 1.7: Rotate Matrix ===\n\n");
+        
+        try {
+            int n = Integer.parseInt(input.trim());
+            if (n < 1 || n > 10) {
+                output.append("Please enter a number between 1 and 10\n");
+            } else {
+                // Create a sample matrix
+                int[][] matrix = new int[n][n];
+                int counter = 1;
+                for (int i = 0; i < n; i++) {
+                    for (int j = 0; j < n; j++) {
+                        matrix[i][j] = counter++;
+                    }
+                }
+                
+                output.append("Original Matrix:\n");
+                output.append(matrixToString(matrix));
+                
+                rotateMatrix(matrix);
+                
+                output.append("\nRotated 90° Clockwise:\n");
+                output.append(matrixToString(matrix));
+            }
+        } catch (NumberFormatException e) {
+            output.append("Please enter a valid number\n");
+        }
+        
+        outputArea.setText(output.toString());
+    }
+    
+    // Problem 1.7: Rotate Matrix 90 degrees
+    private void rotateMatrix(int[][] matrix) {
+        int n = matrix.length;
+        for (int layer = 0; layer < n / 2; layer++) {
+            int first = layer;
+            int last = n - 1 - layer;
+            for (int i = first; i < last; i++) {
+                int offset = i - first;
+                int top = matrix[first][i];
+                
+                // left -> top
+                matrix[first][i] = matrix[last - offset][first];
+                
+                // bottom -> left
+                matrix[last - offset][first] = matrix[last][last - offset];
+                
+                // right -> bottom
+                matrix[last][last - offset] = matrix[i][last];
+                
+                // top -> right
+                matrix[i][last] = top;
+            }
+        }
+    }
+    
+    private void runZeroMatrix() {
+        String input = inputField.getText();
+        if (input.isEmpty()) {
+            input = "3x3";
+        }
+        
+        StringBuilder output = new StringBuilder();
+        output.append("=== Problem 1.8: Zero Matrix ===\n\n");
+        
+        try {
+            String[] parts = input.trim().toLowerCase().split("x");
+            if (parts.length != 2) {
+                output.append("Please enter dimensions as: MxN (e.g., 3x4)\n");
+            } else {
+                int m = Integer.parseInt(parts[0].trim());
+                int n = Integer.parseInt(parts[1].trim());
+                
+                if (m < 1 || m > 10 || n < 1 || n > 10) {
+                    output.append("Please enter dimensions between 1 and 10\n");
+                } else {
+                    // Create sample matrix with some zeros
+                    int[][] matrix = new int[m][n];
+                    int counter = 1;
+                    for (int i = 0; i < m; i++) {
+                        for (int j = 0; j < n; j++) {
+                            matrix[i][j] = counter++;
+                        }
+                    }
+                    // Add some zeros
+                    if (m > 1 && n > 1) {
+                        matrix[1][1] = 0;
+                        if (m > 2) matrix[2][0] = 0;
+                    }
+                    
+                    output.append("Original Matrix:\n");
+                    output.append(matrixToString(matrix));
+                    
+                    setZeros(matrix);
+                    
+                    output.append("\nAfter Setting Zeros:\n");
+                    output.append(matrixToString(matrix));
+                }
+            }
+        } catch (NumberFormatException e) {
+            output.append("Please enter valid dimensions (e.g., 3x4)\n");
+        }
+        
+        outputArea.setText(output.toString());
+    }
+    
+    // Problem 1.8: Zero Matrix
+    private void setZeros(int[][] matrix) {
+        boolean[] row = new boolean[matrix.length];
+        boolean[] column = new boolean[matrix[0].length];
+        
+        // Store the row and column index with value 0
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                if (matrix[i][j] == 0) {
+                    row[i] = true;
+                    column[j] = true;
+                }
+            }
+        }
+        
+        // Set arr[i][j] to 0 if either row i or column j has a 0
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < matrix[0].length; j++) {
+                if (row[i] || column[j]) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+    }
+    
+    private void runStringRotation() {
+        String input = inputField.getText();
+        if (input.isEmpty()) {
+            input = "waterbottle erbottlewat | hello llohe | test fest";
+        }
+        
+        StringBuilder output = new StringBuilder();
+        output.append("=== Problem 1.9: String Rotation ===\n");
+        output.append("(Separate pairs with | )\n\n");
+        
+        String[] testPairs = input.split("\\|");
+        
+        for (String pair : testPairs) {
+            pair = pair.trim();
+            String[] strings = pair.split("\\s+");
+            
+            if (strings.length >= 2) {
+                String s1 = strings[0];
+                String s2 = strings[1];
+                boolean result = isRotation(s1, s2);
+                output.append(String.format("\"%s\" is rotation of \"%s\": %s\n", s2, s1, result));
+            }
+        }
+        
+        output.append("\nTrick: s2 is rotation of s1 if s2 is substring of s1+s1\n");
+        
+        outputArea.setText(output.toString());
+    }
+    
+    // Problem 1.9: String Rotation
+    private boolean isRotation(String s1, String s2) {
+        if (s1.length() != s2.length() || s1.length() == 0) {
+            return false;
+        }
+        // Check if s2 is a substring of s1+s1
+        String s1s1 = s1 + s1;
+        return s1s1.contains(s2);
+    }
+    
+    // Helper method to convert matrix to string
+    private String matrixToString(int[][] matrix) {
+        StringBuilder sb = new StringBuilder();
+        for (int[] row : matrix) {
+            for (int val : row) {
+                sb.append(String.format("%4d", val));
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+   
 }
 
