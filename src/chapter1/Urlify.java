@@ -1,3 +1,5 @@
+package chapter1;
+
 public class Urlify {
     
     public static void urlify(char[] tobeTransformed, int currentLength){
